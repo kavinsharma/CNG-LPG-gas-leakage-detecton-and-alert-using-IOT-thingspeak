@@ -8,8 +8,9 @@ String apiKey = "5G0NEIEWV7FBINY8";     // replace with your channel's thingspea
 String ssid="kavin";    // Wifi network SSID
 String password ="12345612";  // Wifi network password
 boolean DEBUG=true;
-
-//======================to be edit later================================================== showResponse
+#define VOLTAGE_MAX 5.0
+#define VOLTAGE_MAXCOUNTS 1023.0
+//======================================================================== showResponse
 
 void showResponse(int waitTime){
     long t=millis();
@@ -95,7 +96,7 @@ espSerial.begin(115200);  // enable software serial
 }
 
 
-// ====================================================================== loop
+// ======================================================================= loop
 void loop() {
 
 //---------my gas sensor value reading-------------------
@@ -103,30 +104,30 @@ void loop() {
 gas_value=analogRead(sensor);
 Serial.println(gas_value);
 delay(1);  //delay in between reads for stability 
-//if(gas_value>200){
+if(gas_value>250){
 
   // initialize digital pin LED_BUILTIN as an output.
  
-  //digitalWrite(LED_BUILTIN, HIGH);
- // delay(500);
-  //digitalWrite(LED_BUILTIN, LOW);
- // delay(500);
-//float t = gas_value;
+  digitalWrite(LED_BUILTIN, HIGH);
+ //delay(250);
+ // digitalWrite(LED_BUILTIN, LOW);
+ //delay(250);
 
-if (isnan(gas_value)) {
+float t = gas_value*(VOLTAGE_MAX / VOLTAGE_MAXCOUNTS); //convert gas value to voltages
+
+if (isnan(t)) {
         if (DEBUG) Serial.println("Failed to read from MQ5");
       }
       
  else{
-  if (DEBUG)  Serial.println("gas="+String(gas_value));
-  thingSpeakWrite(gas_value);
- // digitalWrite(LED_BUILTIN, LOW);
-                                     // Write values to thingspeak
-}
+  if (DEBUG)  Serial.println("Voltage="+String(t));
+  thingSpeakWrite(t);             // Write values to thingspeak
+     }
 // thingspeak needs 15 sec delay between updates, */    
-  delay(16000);  
+  delay(20000);  
 }
-
-
-
+else{
+  digitalWrite(LED_BUILTIN, LOW);
+}
+}
 
